@@ -8,8 +8,16 @@ const GlobalStyle = createGlobalStyle`
 
   body{
     font-family: 'Source Sans Pro', sans-serif;
-    background-color:${(props) => props.theme.bgColor};
-    color:${(props) => props.theme.textColor};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:100vh;
+    background:url("images/background-main.jpeg") no-repeat center center;
+    background-size: cover;
+  }
+  a{
+    text-decoration: none;
+    color: inherit;
   }
 `;
 
