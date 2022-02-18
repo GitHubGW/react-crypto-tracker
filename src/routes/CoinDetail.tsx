@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Outlet, useLocation, useParams } from "react-router";
+import { useQuery } from "react-query";
+import { Outlet, PathMatch, useLocation, useMatch, useParams } from "react-router";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "../components/Loading";
 
@@ -18,6 +20,7 @@ const Container = styled.div`
 
 const Image = styled.img`
   margin-bottom: 30px;
+  width: 120px;
 `;
 
 const Header = styled.header`
@@ -30,16 +33,16 @@ const Title = styled.h1`
   font-size: 30px;
 `;
 
-const PriceTitle = styled.h1<{ change: string }>`
+const PriceTitle = styled.h1<{ isIncrease: boolean }>`
   font-size: 35px;
   margin: 25px 0;
   font-weight: bold;
-  color: ${(props) => (props.change === "positive" ? props.theme.greenColor : props.theme.redColor)};
+  color: ${(props) => (props.isIncrease === true ? props.theme.greenColor : props.theme.redColor)};
 `;
 
 const ContentContainer = styled.div`
   display: flex;
-  background-color: #222;
+  background-color: ${(props) => props.theme.lightBlackColor};
   border-radius: 5px;
   padding: 15px 0;
   margin: 10px 0;
@@ -52,6 +55,7 @@ const Content = styled.div`
 
   span {
     margin: 8px 10px;
+    text-transform: uppercase;
   }
   span:first-child {
     font-weight: bold;
@@ -66,6 +70,29 @@ const OverviewContent = styled(Content)``;
 const Summary = styled(ContentContainer)``;
 
 const SummaryContent = styled(Content)``;
+
+const LinkContainer = styled.div`
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const LinkNav = styled.div<{ isActive: boolean }>`
+  width: 100%;
+
+  a {
+    display: block;
+    padding: 12px 10px;
+    text-transform: uppercase;
+    background-color: ${(props) => (props.isActive === true ? props.theme.grayColor : props.theme.lightBlackColor)};
+    border-radius: 100px;
+    margin: 5px 10px;
+
+    &:hover {
+      background-color: ${(props) => props.theme.grayColor};
+    }
+  }
+`;
 
 interface RouteState {
   state: {
@@ -140,9 +167,8 @@ const CoinDetail = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [coin, setCoin] = useState<CoinData>();
   const [ticker, setTicker] = useState<TickerData>();
-
-  console.log("coin", coin);
-  console.log("ticker", ticker);
+  const chartMatch: PathMatch<"id"> | null = useMatch("/:id/chart");
+  const priceMatch: PathMatch<"id"> | null = useMatch("/:id/price");
 
   const handleGetCoinTicker = useCallback(async () => {
     const coin = await (await fetch(`https://api.coinpaprika.com/v1/coins/${id}`)).json();
@@ -162,7 +188,7 @@ const CoinDetail = () => {
       <Header>
         <Title>{state?.name ? state.name : loading === true ? <Loading /> : coin?.name}</Title>
       </Header>
-      <PriceTitle change={ticker && ticker?.quotes.USD.market_cap_change_24h > 0 ? "positive" : "negative"}>${ticker?.quotes.USD.price.toFixed(2)}</PriceTitle>
+      <PriceTitle isIncrease={ticker && ticker?.quotes.USD.market_cap_change_24h > 0 ? true : false}>${ticker?.quotes.USD.price.toFixed(2)}</PriceTitle>
       <Overview>
         <OverviewContent>
           <span>Rank</span>
@@ -191,6 +217,14 @@ const CoinDetail = () => {
           <span>{ticker?.quotes.USD.percent_change_24h}</span>
         </SummaryContent>
       </Summary>
+      <LinkContainer>
+        <LinkNav isActive={Boolean(chartMatch)}>
+          <Link to={`/${id}/chart`}>Chart</Link>
+        </LinkNav>
+        <LinkNav isActive={Boolean(priceMatch)}>
+          <Link to={`/${id}/price`}>Price</Link>
+        </LinkNav>
+      </LinkContainer>
       <Outlet />
     </Container>
   );
