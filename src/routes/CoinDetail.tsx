@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { Outlet, PathMatch, useLocation, useMatch, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { handleFetchCoin, handleFetchTicker } from "../api";
 import Loading from "../components/Loading";
 
 const Container = styled.div`
@@ -101,7 +101,7 @@ interface RouteState {
   };
 }
 
-interface CoinData {
+export interface CoinData {
   id: string;
   name: string;
   symbol: string;
@@ -127,7 +127,7 @@ interface CoinData {
   last_data_at: string;
 }
 
-interface TickerData {
+export interface TickerData {
   id: string;
   name: string;
   symbol: string;
@@ -164,57 +164,45 @@ interface TickerData {
 const CoinDetail = () => {
   const { id } = useParams<string>();
   const { state } = useLocation() as RouteState;
-  const [loading, setLoading] = useState<boolean>(true);
-  const [coin, setCoin] = useState<CoinData>();
-  const [ticker, setTicker] = useState<TickerData>();
   const chartMatch: PathMatch<"id"> | null = useMatch("/:id/chart");
   const priceMatch: PathMatch<"id"> | null = useMatch("/:id/price");
-
-  const handleGetCoinTicker = useCallback(async () => {
-    const coin = await (await fetch(`https://api.coinpaprika.com/v1/coins/${id}`)).json();
-    const ticker = await (await fetch(`https://api.coinpaprika.com/v1/tickers/${id}`)).json();
-    setCoin(coin);
-    setTicker(ticker);
-    setLoading(false);
-  }, [id]);
-
-  useEffect(() => {
-    handleGetCoinTicker();
-  }, [handleGetCoinTicker]);
+  const { isLoading: coinLoading, data: coinData } = useQuery<CoinData>(["coin", id], () => handleFetchCoin(id));
+  const { isLoading: tickerLoading, data: tickerData } = useQuery<TickerData>(["ticker", id], () => handleFetchTicker(id));
+  const loading = coinLoading || tickerLoading;
 
   return (
     <Container>
-      {loading === false && <Image src={`https://cryptoicon-api.vercel.app/api/icon/${coin?.symbol.toLowerCase()}`} alt={coin?.name} />}
+      {loading === false && <Image src={`https://cryptoicon-api.vercel.app/api/icon/${coinData?.symbol.toLowerCase()}`} alt={coinData?.name} />}
       <Header>
-        <Title>{state?.name ? state.name : loading === true ? <Loading /> : coin?.name}</Title>
+        <Title>{state?.name ? state.name : coinLoading === true && tickerLoading === true ? <Loading /> : coinData?.name}</Title>
       </Header>
-      <PriceTitle isIncrease={ticker && ticker?.quotes.USD.market_cap_change_24h > 0 ? true : false}>${ticker?.quotes.USD.price.toFixed(2)}</PriceTitle>
+      <PriceTitle isIncrease={tickerData && tickerData?.quotes.USD.market_cap_change_24h > 0 ? true : false}>${tickerData?.quotes.USD.price.toFixed(2)}</PriceTitle>
       <Overview>
         <OverviewContent>
           <span>Rank</span>
-          <span>{coin?.rank}</span>
+          <span>{coinData?.rank}</span>
         </OverviewContent>
         <OverviewContent>
           <span>Symbol</span>
-          <span>{coin?.symbol}</span>
+          <span>{coinData?.symbol}</span>
         </OverviewContent>
         <OverviewContent>
           <span>Name</span>
-          <span>{coin?.name}</span>
+          <span>{coinData?.name}</span>
         </OverviewContent>
       </Overview>
       <Summary>
         <SummaryContent>
           <span>Market Cap</span>
-          <span>${ticker?.quotes.USD.market_cap}</span>
+          <span>${tickerData?.quotes.USD.market_cap}</span>
         </SummaryContent>
         <SummaryContent>
           <span>ATH</span>
-          <span>${ticker?.quotes.USD.ath_price}</span>
+          <span>${tickerData?.quotes.USD.ath_price}</span>
         </SummaryContent>
         <SummaryContent>
           <span>24h Change</span>
-          <span>{ticker?.quotes.USD.percent_change_24h}</span>
+          <span>{tickerData?.quotes.USD.percent_change_24h}</span>
         </SummaryContent>
       </Summary>
       <LinkContainer>

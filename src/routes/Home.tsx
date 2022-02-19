@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import styled from "styled-components";
 import Coin from "../components/Coin";
 import Loading from "../components/Loading";
+import { handleFetchAllCoins, handleFetchAllTickers } from "../api";
 
 const Container = styled.div`
   border-radius: 10px;
@@ -49,7 +50,7 @@ const CoinNav = styled.div`
   }
 `;
 
-interface CoinInterface {
+interface AllCoinsInterface {
   id: string;
   name: string;
   symbol: string;
@@ -59,20 +60,44 @@ interface CoinInterface {
   type: string;
 }
 
-const Home = () => {
-  const [coins, setCoins] = useState<CoinInterface[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const handleGetAllCoins = async () => {
-    const coinsData = await (await fetch(`https://api.coinpaprika.com/v1/coins`)).json();
-    const slicedCoinsData = coinsData.slice(0, 100);
-    setCoins(slicedCoinsData);
-    setLoading(false);
+interface AllTickersInterface {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number;
+  beta_value: number;
+  first_data_at: string;
+  last_updated: string;
+  quotes: {
+    USD: {
+      ath_date: string;
+      ath_price: number;
+      market_cap: number;
+      market_cap_change_24h: number;
+      percent_change_1h: number;
+      percent_change_1y: number;
+      percent_change_6h: number;
+      percent_change_7d: number;
+      percent_change_12h: number;
+      percent_change_15m: number;
+      percent_change_24h: number;
+      percent_change_30d: number;
+      percent_change_30m: number;
+      percent_from_price_ath: number;
+      price: number;
+      volume_24h: number;
+      volume_24h_change_24h: number;
+    };
   };
+}
 
-  useEffect(() => {
-    handleGetAllCoins();
-  }, []);
+const Home = () => {
+  const { isLoading: allCoinsLoading, data: allCoinsData } = useQuery<AllCoinsInterface[]>("allCoins", handleFetchAllCoins);
+  const { isLoading: allTickersLoading, data: allTickersData } = useQuery<AllTickersInterface[]>("allTickers", handleFetchAllTickers);
+  const loading = allCoinsLoading || allTickersLoading;
 
   return (
     <Container>
@@ -85,16 +110,20 @@ const Home = () => {
         <CoinUl>
           <CoinNav>
             <span>Rank</span>
-            <span>Cap / Volume</span>
+            <span>Volume / Change</span>
             <span>Price / Change</span>
           </CoinNav>
-          {coins.map((coin) => (
+          {allTickersData?.map((coin: AllTickersInterface) => (
             <Coin
               key={coin.id}
               id={coin.id}
               rank={coin.rank}
               symbol={coin.symbol}
               name={coin.name}
+              price={coin.quotes.USD.price}
+              priceChange={coin.quotes.USD.percent_change_24h}
+              volume={coin.quotes.USD.volume_24h}
+              volumeChange={coin.quotes.USD.volume_24h_change_24h}
               image={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
             />
           ))}

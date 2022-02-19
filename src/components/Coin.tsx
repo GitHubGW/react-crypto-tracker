@@ -44,13 +44,18 @@ const CoinSymbolContainer = styled.div`
   margin-bottom: 8px;
 `;
 
-const CoinCapContainer = styled.div``;
+const CoinCapContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
-const CoinCap = styled.span``;
+const CoinCap = styled.span`
+  font-size: 12px;
+  margin-left: 7px;
+`;
 
 const CoinVolume = styled.span`
   font-size: 15px;
-  margin-left: 8px;
   color: ${(props) => props.theme.grayColor};
 `;
 
@@ -86,9 +91,13 @@ interface CoinProps {
   symbol: string;
   name: string;
   image: string;
+  price: number;
+  priceChange: number;
+  volume: number;
+  volumeChange: number;
 }
 
-const Coin = ({ id, rank, symbol, name, image }: CoinProps) => {
+const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volumeChange }: CoinProps) => {
   return (
     <CoinLi>
       <Link to={`/${id}`} state={{ name, rank }}>
@@ -104,14 +113,14 @@ const Coin = ({ id, rank, symbol, name, image }: CoinProps) => {
                 <CoinName>{name}</CoinName>
               </CoinSymbolContainer>
               <CoinCapContainer>
-                <CoinCap>$135.69B</CoinCap>
-                <CoinVolume>$72.30B</CoinVolume>
+                <CoinVolume>${volume.toFixed(2)}</CoinVolume>
+                <CoinCap>{volumeChange}%</CoinCap>
               </CoinCapContainer>
             </CoinContent>
           </CoinContentContainer>
           <CoinPriceContainer>
-            <CoinPrice>$7664.19</CoinPrice>
-            <CoinChange>-2.67%</CoinChange>
+            <CoinPrice>${price.toFixed(2)}</CoinPrice>
+            <CoinChange>{priceChange}%</CoinChange>
           </CoinPriceContainer>
         </CoinContainer>
       </Link>
