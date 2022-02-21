@@ -1,9 +1,12 @@
+import ReactApexChart from "react-apexcharts";
 import { useQuery } from "react-query";
 import { Outlet, PathMatch, useLocation, useMatch, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { handleFetchCoin, handleFetchTicker } from "../api";
+import { handleFetchCoin, handleFetchOHLC, handleFetchTicker } from "../api";
+import HelmetTitle from "../components/HelmetTitle";
 import Loading from "../components/Loading";
+import { OHLCData } from "../interfaces/shared.interfaces";
 
 const Container = styled.div`
   border-radius: 10px;
@@ -14,6 +17,7 @@ const Container = styled.div`
   box-shadow: black 5px 5px 20px 0px;
   margin: 100px 0;
   text-align: center;
+  position: relative;
   background-color: ${(props) => props.theme.bgColor};
   color: ${(props) => props.theme.textColor};
 `;
@@ -56,10 +60,14 @@ const Content = styled.div`
   span {
     margin: 8px 10px;
     text-transform: uppercase;
-  }
-  span:first-child {
-    font-weight: bold;
-    color: ${(props) => props.theme.yellowColor};
+    &:first-child {
+      font-weight: bold;
+      color: ${(props) => props.theme.yellowColor};
+    }
+    &:nth-child(2) {
+      font-weight: 500;
+      font-size: 15px;
+    }
   }
 `;
 
@@ -92,6 +100,13 @@ const LinkNav = styled.div<{ isActive: boolean }>`
       background-color: ${(props) => props.theme.grayColor};
     }
   }
+`;
+
+const HomeButton = styled(Link)`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 25px;
 `;
 
 interface RouteState {
@@ -166,17 +181,27 @@ const CoinDetail = () => {
   const { state } = useLocation() as RouteState;
   const chartMatch: PathMatch<"id"> | null = useMatch("/:id/chart");
   const priceMatch: PathMatch<"id"> | null = useMatch("/:id/price");
-  const { isLoading: coinLoading, data: coinData } = useQuery<CoinData>(["coin", id], () => handleFetchCoin(id));
-  const { isLoading: tickerLoading, data: tickerData } = useQuery<TickerData>(["ticker", id], () => handleFetchTicker(id));
-  const loading = coinLoading || tickerLoading;
+  const { isLoading: coinLoading, data: coinData } = useQuery<CoinData>(["coin", id], () => handleFetchCoin(id), { refetchInterval: 10000 });
+  const { isLoading: tickerLoading, data: tickerData } = useQuery<TickerData>(["ticker", id], () => handleFetchTicker(id), { refetchInterval: 10000 });
+  const { isLoading: ohlcLoading, data: ohlcData } = useQuery<OHLCData[]>(["ohlc", "detail", id], () => handleFetchOHLC(id as string), { refetchInterval: 10000 });
+  let series: any = [];
+  if (ohlcData) {
+    series = [Math.floor(ohlcData.slice(14)[0].high), Math.floor(ohlcData.slice(14)[0].low), Math.floor(ohlcData.slice(14)[0].open), Math.floor(ohlcData.slice(14)[0].close)];
+  }
 
   return (
     <Container>
-      {loading === false && <Image src={`https://cryptoicon-api.vercel.app/api/icon/${coinData?.symbol.toLowerCase()}`} alt={coinData?.name} />}
+      <HelmetTitle text={coinData?.name} />
+      <HomeButton to="/">🏠</HomeButton>
+      {(coinLoading || tickerLoading || ohlcLoading) === false && (
+        <Image src={`https://cryptoicon-api.vercel.app/api/icon/${coinData?.symbol.toLowerCase()}`} alt={coinData?.name} />
+      )}
       <Header>
-        <Title>{state?.name ? state.name : coinLoading === true && tickerLoading === true ? <Loading /> : coinData?.name}</Title>
+        <Title>{state?.name ? state.name : coinLoading === true && tickerLoading === true && ohlcLoading === true ? <Loading /> : coinData?.name}</Title>
       </Header>
-      <PriceTitle isIncrease={tickerData && tickerData?.quotes.USD.market_cap_change_24h > 0 ? true : false}>${tickerData?.quotes.USD.price.toFixed(2)}</PriceTitle>
+      <PriceTitle isIncrease={tickerData && tickerData?.quotes.USD.market_cap_change_24h > 0 ? true : false}>
+        {tickerData && `$${tickerData?.quotes.USD.price.toFixed(3)}`}
+      </PriceTitle>
       <Overview>
         <OverviewContent>
           <span>Rank</span>
@@ -187,8 +212,8 @@ const CoinDetail = () => {
           <span>{coinData?.symbol}</span>
         </OverviewContent>
         <OverviewContent>
-          <span>Name</span>
-          <span>{coinData?.name}</span>
+          <span>Date</span>
+          <span>{coinData?.first_data_at.substring(0, 10)}</span>
         </OverviewContent>
       </Overview>
       <Summary>
@@ -198,11 +223,13 @@ const CoinDetail = () => {
         </SummaryContent>
         <SummaryContent>
           <span>ATH</span>
-          <span>${tickerData?.quotes.USD.ath_price}</span>
+          <span>${tickerData?.quotes.USD.ath_price.toFixed(3)}</span>
         </SummaryContent>
         <SummaryContent>
           <span>24h Change</span>
-          <span>{tickerData?.quotes.USD.percent_change_24h}</span>
+          <span>
+            {tickerData && tickerData?.quotes.USD.percent_change_24h > 0 ? `+${tickerData?.quotes.USD.percent_change_24h}%` : `${tickerData?.quotes.USD.percent_change_24h}%`}
+          </span>
         </SummaryContent>
       </Summary>
       <LinkContainer>
@@ -213,7 +240,38 @@ const CoinDetail = () => {
           <Link to={`/${id}/price`}>Price</Link>
         </LinkNav>
       </LinkContainer>
-      <Outlet />
+      <Outlet context={{ id }} />
+      {chartMatch === null && priceMatch === null && (
+        <ReactApexChart
+          type="radialBar"
+          series={series}
+          height={400}
+          options={{
+            chart: {
+              type: "radialBar",
+            },
+            plotOptions: {
+              radialBar: {
+                dataLabels: {
+                  name: {
+                    fontSize: "22px",
+                  },
+                  value: {
+                    fontSize: "16px",
+                    formatter: (value: number) => `$${value}`,
+                  },
+                  total: {
+                    show: true,
+                    label: "Price",
+                    formatter: (value: number) => `💰`,
+                  },
+                },
+              },
+            },
+            labels: ["Highest Price", "Lowest Price", "Opening Price", "Closing Price"],
+          }}
+        />
+      )}
     </Container>
   );
 };

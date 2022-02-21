@@ -81,8 +81,8 @@ const CoinPrice = styled.span`
   margin-bottom: 8px;
 `;
 
-const CoinChange = styled.span`
-  color: ${(props) => props.theme.redColor};
+const CoinChange = styled.span<{ isActive: boolean }>`
+  color: ${(props) => (props.isActive === true ? props.theme.greenColor : props.theme.redColor)};
 `;
 
 interface CoinProps {
@@ -120,7 +120,7 @@ const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volum
           </CoinContentContainer>
           <CoinPriceContainer>
             <CoinPrice>${price.toFixed(2)}</CoinPrice>
-            <CoinChange>{priceChange}%</CoinChange>
+            <CoinChange isActive={priceChange > 0}>{priceChange > 0 ? `+${priceChange}` : `${priceChange}`}%</CoinChange>
           </CoinPriceContainer>
         </CoinContainer>
       </Link>

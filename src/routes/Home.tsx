@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Coin from "../components/Coin";
 import Loading from "../components/Loading";
 import { handleFetchAllCoins, handleFetchAllTickers } from "../api";
+import HelmetTitle from "../components/HelmetTitle";
 
 const Container = styled.div`
   border-radius: 10px;
@@ -97,14 +98,14 @@ interface AllTickersInterface {
 const Home = () => {
   const { isLoading: allCoinsLoading, data: allCoinsData } = useQuery<AllCoinsInterface[]>("allCoins", handleFetchAllCoins);
   const { isLoading: allTickersLoading, data: allTickersData } = useQuery<AllTickersInterface[]>("allTickers", handleFetchAllTickers);
-  const loading = allCoinsLoading || allTickersLoading;
 
   return (
     <Container>
+      <HelmetTitle text={"💰 Crypto Tracker 💰"} />
       <Header>
         <Title>Crypto Tracker</Title>
       </Header>
-      {loading === true ? (
+      {(allCoinsLoading || allTickersLoading) === true ? (
         <Loading />
       ) : (
         <CoinUl>
