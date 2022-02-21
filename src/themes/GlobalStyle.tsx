@@ -4,16 +4,14 @@ import reset from "styled-reset";
 const GlobalStyle = createGlobalStyle`
   ${reset}
 
-  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
-
   body{
-    font-family: 'Source Sans Pro', sans-serif;
+    font-family: 'Coda', cursive;
     display: flex;
     justify-content: center;
     align-items: center;
-    height:100vh;
-    background:url("images/background-main.jpeg") no-repeat center center;
+    background:url("/images/background-main.jpeg") no-repeat center center;
     background-size: cover;
+    background-attachment: fixed;
   }
   a{
     text-decoration: none;

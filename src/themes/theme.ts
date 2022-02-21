@@ -6,6 +6,8 @@ export const lightTheme: DefaultTheme = {
   redColor: "#d63031",
   greenColor: "#00b894",
   grayColor: "#585858",
+  lightBlackColor: "rgb(20,20,20)",
+  yellowColor: "#ffd32a",
 };
 
 export const darkTheme: DefaultTheme = {
@@ -14,4 +16,6 @@ export const darkTheme: DefaultTheme = {
   redColor: "#d63031",
   greenColor: "#00b894",
   grayColor: "#585858",
+  lightBlackColor: "rgb(20,20,20)",
+  yellowColor: "#ffd32a",
 };
