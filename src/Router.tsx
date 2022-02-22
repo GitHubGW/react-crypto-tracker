@@ -4,9 +4,11 @@ import CoinDetail from "./routes/CoinDetail";
 import Chart from "./components/Chart";
 import Price from "./components/Price";
 
+console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
+
 const Router = () => {
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
+    <BrowserRouter basename={`/${process.env.PUBLIC_URL}`}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/:id" element={<CoinDetail />}>

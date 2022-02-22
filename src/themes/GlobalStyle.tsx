@@ -9,7 +9,8 @@ const GlobalStyle = createGlobalStyle`
     display: flex;
     justify-content: center;
     align-items: center;
-    background:url("/images/background-main.jpeg") no-repeat center center;
+    /* background:url("/images/background-main.jpeg") no-repeat center center; */
+    background:url("../../images/background-main.jpeg") no-repeat center center;
     background-size: cover;
     background-attachment: fixed;
   }
