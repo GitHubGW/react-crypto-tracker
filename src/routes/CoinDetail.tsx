@@ -47,6 +47,7 @@ const PriceTitle = styled.h1<{ isIncrease: boolean }>`
 const ContentContainer = styled.div`
   display: flex;
   background-color: ${(props) => props.theme.lightBlackColor};
+  color: ${(props) => props.theme.textColor};
   border-radius: 5px;
   padding: 15px 0;
   margin: 10px 0;
@@ -65,7 +66,7 @@ const Content = styled.div`
       color: ${(props) => props.theme.yellowColor};
     }
     &:nth-child(2) {
-      font-weight: 500;
+      font-weight: bold;
       font-size: 15px;
     }
   }
@@ -81,6 +82,7 @@ const SummaryContent = styled(Content)``;
 
 const LinkContainer = styled.div`
   margin-bottom: 30px;
+  margin-top: 15px;
   display: flex;
   justify-content: space-between;
 `;
@@ -94,7 +96,6 @@ const LinkNav = styled.div<{ isActive: boolean }>`
     text-transform: uppercase;
     background-color: ${(props) => (props.isActive === true ? props.theme.grayColor : props.theme.lightBlackColor)};
     border-radius: 100px;
-    margin: 5px 10px;
 
     &:hover {
       background-color: ${(props) => props.theme.grayColor};
@@ -105,7 +106,7 @@ const LinkNav = styled.div<{ isActive: boolean }>`
 const HomeButton = styled(Link)`
   position: absolute;
   top: 20px;
-  right: 20px;
+  left: 20px;
   font-size: 25px;
 `;
 
@@ -184,6 +185,7 @@ const CoinDetail = () => {
   const { isLoading: coinLoading, data: coinData } = useQuery<CoinData>(["coin", id], () => handleFetchCoin(id), { refetchInterval: 10000 });
   const { isLoading: tickerLoading, data: tickerData } = useQuery<TickerData>(["ticker", id], () => handleFetchTicker(id), { refetchInterval: 10000 });
   const { isLoading: ohlcLoading, data: ohlcData } = useQuery<OHLCData[]>(["ohlc", "detail", id], () => handleFetchOHLC(id as string), { refetchInterval: 10000 });
+
   let series: any = [];
   if (ohlcData) {
     series = [Math.floor(ohlcData.slice(14)[0].high), Math.floor(ohlcData.slice(14)[0].low), Math.floor(ohlcData.slice(14)[0].open), Math.floor(ohlcData.slice(14)[0].close)];
@@ -193,6 +195,7 @@ const CoinDetail = () => {
     <Container>
       <HelmetTitle text={coinData?.name} />
       <HomeButton to="/">🏠</HomeButton>
+
       {(coinLoading || tickerLoading || ohlcLoading) === false && (
         <Image src={`https://cryptoicon-api.vercel.app/api/icon/${coinData?.symbol.toLowerCase()}`} alt={coinData?.name} />
       )}
@@ -200,7 +203,7 @@ const CoinDetail = () => {
         <Title>{state?.name ? state.name : coinLoading === true && tickerLoading === true && ohlcLoading === true ? <Loading /> : coinData?.name}</Title>
       </Header>
       <PriceTitle isIncrease={tickerData && tickerData?.quotes.USD.market_cap_change_24h > 0 ? true : false}>
-        {tickerData && `$${tickerData?.quotes.USD.price.toFixed(3)}`}
+        {tickerData && `$${Number(tickerData?.quotes.USD.price.toFixed(3)).toLocaleString("ko-KR")}`}
       </PriceTitle>
       <Overview>
         <OverviewContent>
@@ -219,11 +222,11 @@ const CoinDetail = () => {
       <Summary>
         <SummaryContent>
           <span>Market Cap</span>
-          <span>${tickerData?.quotes.USD.market_cap}</span>
+          <span>${Number(tickerData?.quotes.USD.market_cap).toLocaleString("ko-KR")}</span>
         </SummaryContent>
         <SummaryContent>
           <span>ATH</span>
-          <span>${tickerData?.quotes.USD.ath_price.toFixed(3)}</span>
+          <span>${Number(tickerData?.quotes.USD.ath_price.toFixed(3)).toLocaleString("ko-KR")}</span>
         </SummaryContent>
         <SummaryContent>
           <span>24h Change</span>

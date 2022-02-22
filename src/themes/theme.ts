@@ -1,12 +1,12 @@
 import { DefaultTheme } from "styled-components";
 
 export const lightTheme: DefaultTheme = {
-  bgColor: "#dfe6e9",
+  bgColor: "#ffffff",
   textColor: "#2d3436",
   redColor: "#d63031",
   greenColor: "#00b894",
-  grayColor: "#585858",
-  lightBlackColor: "rgb(20,20,20)",
+  grayColor: "#D8D8D8",
+  lightBlackColor: "#F0F0F0",
   yellowColor: "#ffd32a",
 };
 
