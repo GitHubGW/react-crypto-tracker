@@ -250,24 +250,13 @@ const CoinDetail = () => {
           series={series}
           height={400}
           options={{
-            chart: {
-              type: "radialBar",
-            },
+            chart: { type: "radialBar" },
             plotOptions: {
               radialBar: {
                 dataLabels: {
-                  name: {
-                    fontSize: "22px",
-                  },
-                  value: {
-                    fontSize: "16px",
-                    formatter: (value: number) => `$${value}`,
-                  },
-                  total: {
-                    show: true,
-                    label: "Price",
-                    formatter: (value: number) => `💰`,
-                  },
+                  name: { fontSize: "22px" },
+                  value: { fontSize: "16px", formatter: (value: number) => `$${value}` },
+                  total: { show: true, label: "Price", formatter: (value: number) => `💰` },
                 },
               },
             },

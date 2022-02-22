@@ -35,23 +35,13 @@ const Price = () => {
               background: darkMode ? "black" : "white",
             },
             theme: { mode: darkMode ? "dark" : "light" },
-            title: {
-              text: "CandleStick Chart",
-              align: "center",
-              style: { color: darkMode ? "white" : "black" },
-            },
-            xaxis: {
-              type: "datetime",
-            },
+            title: { text: "CandleStick Chart", align: "center", style: { color: darkMode ? "white" : "black" } },
+            xaxis: { type: "datetime" },
             yaxis: {
-              labels: {
-                formatter: (value: number) => `$${value.toFixed(2)}`,
-              },
+              labels: { formatter: (value: number) => `$${value.toFixed(2)}` },
               axisBorder: { show: false },
               axisTicks: { show: false },
-              tooltip: {
-                enabled: true,
-              },
+              tooltip: { enabled: true },
             },
           }}
         />

@@ -18,6 +18,7 @@ const CoinContainer = styled.div`
 
 const CoinRankContainer = styled.div`
   flex: 1;
+  max-width: 65px;
 `;
 
 const CoinRank = styled.span`

@@ -39,23 +39,10 @@ const Chart = () => {
               background: darkMode ? "black" : "white",
             },
             theme: { mode: darkMode ? "dark" : "light" },
-            title: {
-              text: "Line Chart",
-              align: "center",
-              style: { color: darkMode ? "white" : "black" },
-            },
+            title: { text: "Line Chart", align: "center", style: { color: darkMode ? "white" : "black" } },
             stroke: { show: true, curve: "smooth", width: [5, 5], dashArray: [0, 0] },
-            tooltip: {
-              enabled: true,
-              x: { show: true },
-              y: { formatter: (closingPrice: number) => `$${closingPrice}` },
-            },
-            markers: {
-              size: 0,
-              hover: {
-                sizeOffset: 8,
-              },
-            },
+            tooltip: { enabled: true, x: { show: true }, y: { formatter: (closingPrice: number) => `$${closingPrice}` } },
+            markers: { size: 0, hover: { sizeOffset: 8 } },
             grid: { show: false },
             xaxis: {
               tickAmount: 14,
