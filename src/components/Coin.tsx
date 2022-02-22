@@ -113,13 +113,13 @@ const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volum
                 <CoinName>{name}</CoinName>
               </CoinSymbolContainer>
               <CoinCapContainer>
-                <CoinVolume>${volume.toFixed(2)}</CoinVolume>
+                <CoinVolume>${Number(volume.toFixed(2)).toLocaleString("ko-KR")}</CoinVolume>
                 <CoinCap>{volumeChange}%</CoinCap>
               </CoinCapContainer>
             </CoinContent>
           </CoinContentContainer>
           <CoinPriceContainer>
-            <CoinPrice>${price.toFixed(2)}</CoinPrice>
+            <CoinPrice>${Number(price.toFixed(2)).toLocaleString("ko-KR")}</CoinPrice>
             <CoinChange isActive={priceChange > 0}>{priceChange > 0 ? `+${priceChange}` : `${priceChange}`}%</CoinChange>
           </CoinPriceContainer>
         </CoinContainer>

@@ -5,17 +5,20 @@ import { handleFetchOHLC } from "../api";
 import Loading from "./Loading";
 import HelmetTitle from "./HelmetTitle";
 import { OHLCData } from "../interfaces/shared.interfaces";
+import { useRecoilValue } from "recoil";
+import { darkModeState } from "../atoms";
 
-interface ChartProps {
+interface ChartContext {
   id: string;
 }
 
 const Chart = () => {
-  const { id } = useOutletContext<ChartProps>();
+  const { id } = useOutletContext<ChartContext>();
   const { isLoading: ohlcLoading, data: ohlcData } = useQuery<OHLCData[]>(["ohlc", "chart", id], () => handleFetchOHLC(id), { refetchInterval: 5000 });
   const openingPrice: number[] | undefined = ohlcData?.map((price) => +price.open.toFixed(3));
   const closingPrice: number[] | undefined = ohlcData?.map((price) => +price.close.toFixed(3));
   const timeClose: string[] | undefined = ohlcData?.map((time) => time.time_close.substring(5, 10));
+  const darkMode: boolean = useRecoilValue(darkModeState);
 
   return (
     <div>
@@ -33,13 +36,13 @@ const Chart = () => {
           options={{
             chart: {
               toolbar: { show: true, tools: { download: true, pan: false, reset: false, zoom: false, zoomin: false, zoomout: false } },
-              background: "rgb(6,6,6)",
+              background: darkMode ? "black" : "white",
             },
-            theme: { mode: "dark" },
+            theme: { mode: darkMode ? "dark" : "light" },
             title: {
               text: "Line Chart",
               align: "center",
-              style: { color: "white" },
+              style: { color: darkMode ? "white" : "black" },
             },
             stroke: { show: true, curve: "smooth", width: [5, 5], dashArray: [0, 0] },
             tooltip: {
