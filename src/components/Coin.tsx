@@ -1,6 +1,18 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
+interface CoinProps {
+  id: string;
+  rank: number;
+  symbol: string;
+  name: string;
+  image: string;
+  price: number;
+  priceChange: number;
+  volume: number;
+  volumeChange: number;
+}
+
 const CoinLi = styled.li`
   transition: 0.3s;
 
@@ -85,18 +97,6 @@ const CoinPrice = styled.span`
 const CoinChange = styled.span<{ isActive: boolean }>`
   color: ${(props) => (props.isActive === true ? props.theme.greenColor : props.theme.redColor)};
 `;
-
-interface CoinProps {
-  id: string;
-  rank: number;
-  symbol: string;
-  name: string;
-  image: string;
-  price: number;
-  priceChange: number;
-  volume: number;
-  volumeChange: number;
-}
 
 const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volumeChange }: CoinProps) => {
   return (

@@ -1,7 +1,7 @@
 import Router from "./Router";
-import GlobalStyle from "./themes/GlobalStyle";
+import GlobalStyle from "./styles/GlobalStyle";
 import styled, { ThemeProvider } from "styled-components";
-import { lightTheme, darkTheme } from "./themes/theme";
+import { lightTheme, darkTheme } from "./styles/theme";
 import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
 import { darkModeState } from "./atoms";
 
