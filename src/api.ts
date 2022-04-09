@@ -7,8 +7,8 @@ export const handleFetchAllCoins = async (): Promise<never[]> => {
   return slicedAllCoins;
 };
 
-export const handleFetchAllTickers = async (): Promise<never[]> => {
-  const allTickers: [] = await (await fetch(`https://api.coinpaprika.com/v1/tickers`)).json();
+export const handleFetchAllTickers = async (page: number): Promise<never[]> => {
+  const allTickers: [] = await (await fetch(`https://api.coinpaprika.com/v1/tickers?page=${page}`)).json();
   const slicedAllTickers: never[] = allTickers?.slice(0, 100);
   return slicedAllTickers;
 };
