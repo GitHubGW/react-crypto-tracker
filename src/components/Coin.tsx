@@ -13,7 +13,40 @@ interface CoinProps {
   volumeChange: number;
 }
 
-const CoinLi = styled.li`
+const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volumeChange }: CoinProps) => {
+  return (
+    <Container>
+      <Link to={`/${id}`} state={{ name, rank }}>
+        <Wrapper>
+          <RankContainer>
+            <Rank>{rank}</Rank>
+          </RankContainer>
+          <InformationContainer>
+            <Image src={image} alt={name} />
+            <Content>
+              <SymbolContainer>
+                <Symbol>{symbol}</Symbol>
+                <Name>{name}</Name>
+              </SymbolContainer>
+              <CapContainer>
+                <Volume>${Number(volume.toFixed(2)).toLocaleString("ko-KR")}</Volume>
+                <Cap>{volumeChange}%</Cap>
+              </CapContainer>
+            </Content>
+          </InformationContainer>
+          <PriceContainer>
+            <Price>${Number(price.toFixed(2)).toLocaleString("ko-KR")}</Price>
+            <Change isActive={priceChange > 0}>{priceChange > 0 ? `+${priceChange}` : `${priceChange}`}%</Change>
+          </PriceContainer>
+        </Wrapper>
+      </Link>
+    </Container>
+  );
+};
+
+export default Coin;
+
+const Container = styled.div`
   transition: 0.3s;
 
   &:hover {
@@ -21,112 +54,79 @@ const CoinLi = styled.li`
   }
 `;
 
-const CoinContainer = styled.div`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
   border-bottom: 2px solid ${(props) => props.theme.grayColor};
   padding: 20px 0px;
 `;
 
-const CoinRankContainer = styled.div`
+const RankContainer = styled.div`
   flex: 1;
   max-width: 65px;
 `;
 
-const CoinRank = styled.span`
+const Rank = styled.span`
   margin-left: 10px;
   color: ${(props) => props.theme.grayColor};
 `;
 
-const CoinContentContainer = styled.div`
+const InformationContainer = styled.div`
   flex: 2.5;
   display: flex;
   align-items: center;
 `;
 
-const CoinImage = styled.img`
+const Image = styled.img`
   width: 50px;
   height: 50px;
 `;
 
-const CoinContent = styled.div`
+const Content = styled.div`
   margin-left: 20px;
 `;
 
-const CoinSymbolContainer = styled.div`
+const SymbolContainer = styled.div`
   margin-bottom: 8px;
 `;
 
-const CoinCapContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const CoinCap = styled.span`
-  font-size: 12px;
-  margin-left: 7px;
-`;
-
-const CoinVolume = styled.span`
-  font-size: 15px;
-  color: ${(props) => props.theme.grayColor};
-`;
-
-const CoinSymbol = styled.span`
+const Symbol = styled.span`
   font-weight: bold;
 `;
 
-const CoinName = styled.span`
+const Name = styled.span`
   font-size: 15px;
   margin-left: 8px;
   color: ${(props) => props.theme.grayColor};
 `;
 
-const CoinPriceContainer = styled.div`
+const CapContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Volume = styled.span`
+  font-size: 15px;
+  color: ${(props) => props.theme.grayColor};
+`;
+
+const Cap = styled.span`
+  font-size: 12px;
+  margin-left: 7px;
+`;
+
+const PriceContainer = styled.div`
   flex: 1.5;
   display: flex;
   flex-direction: column;
   text-align: right;
 `;
 
-const CoinPrice = styled.span`
+const Price = styled.span`
   font-weight: bold;
   margin-bottom: 8px;
 `;
 
-const CoinChange = styled.span<{ isActive: boolean }>`
+const Change = styled.span<{ isActive: boolean }>`
   color: ${(props) => (props.isActive === true ? props.theme.greenColor : props.theme.redColor)};
 `;
-
-const Coin = ({ id, rank, symbol, name, image, price, priceChange, volume, volumeChange }: CoinProps) => {
-  return (
-    <CoinLi>
-      <Link to={`/${id}`} state={{ name, rank }}>
-        <CoinContainer>
-          <CoinRankContainer>
-            <CoinRank>{rank}</CoinRank>
-          </CoinRankContainer>
-          <CoinContentContainer>
-            <CoinImage src={image} alt={name} />
-            <CoinContent>
-              <CoinSymbolContainer>
-                <CoinSymbol>{symbol}</CoinSymbol>
-                <CoinName>{name}</CoinName>
-              </CoinSymbolContainer>
-              <CoinCapContainer>
-                <CoinVolume>${Number(volume.toFixed(2)).toLocaleString("ko-KR")}</CoinVolume>
-                <CoinCap>{volumeChange}%</CoinCap>
-              </CoinCapContainer>
-            </CoinContent>
-          </CoinContentContainer>
-          <CoinPriceContainer>
-            <CoinPrice>${Number(price.toFixed(2)).toLocaleString("ko-KR")}</CoinPrice>
-            <CoinChange isActive={priceChange > 0}>{priceChange > 0 ? `+${priceChange}` : `${priceChange}`}%</CoinChange>
-          </CoinPriceContainer>
-        </CoinContainer>
-      </Link>
-    </CoinLi>
-  );
-};
-
-export default Coin;

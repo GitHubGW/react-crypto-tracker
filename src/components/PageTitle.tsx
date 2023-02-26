@@ -1,10 +1,10 @@
 import { Helmet } from "react-helmet-async";
 
-interface HelmetTitleProps {
+interface PageTitleProps {
   text?: string;
 }
 
-const HelmetTitle = ({ text }: HelmetTitleProps) => {
+const PageTitle = ({ text }: PageTitleProps) => {
   return (
     <Helmet>
       <title>{text}</title>
@@ -12,4 +12,4 @@ const HelmetTitle = ({ text }: HelmetTitleProps) => {
   );
 };
 
-export default HelmetTitle;
+export default PageTitle;

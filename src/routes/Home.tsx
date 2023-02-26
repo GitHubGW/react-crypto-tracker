@@ -3,52 +3,76 @@ import styled from "styled-components";
 import Coin from "../components/Coin";
 import Loading from "../components/Loading";
 import { handleFetchAllCoins, handleFetchAllTickers } from "../api";
-import HelmetTitle from "../components/HelmetTitle";
+import PageTitle from "../components/PageTitle";
 import { useCallback, useEffect, useState } from "react";
+import { CoinInterface, TickerInterface } from "../types/common";
 
-interface AllCoinsInterface {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
-}
+const Home = () => {
+  const [page, setPage] = useState(1);
+  const [allData, setAllData] = useState<TickerInterface[]>([]);
+  const { isLoading: allCoinsLoading } = useQuery<CoinInterface[]>("allCoins", handleFetchAllCoins);
+  const { isLoading: allTickersLoading, data: allTickersData, refetch: refetchAllTickers } = useQuery<TickerInterface[]>("allTickers", () => handleFetchAllTickers(page));
 
-interface AllTickersInterface {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  circulating_supply: number;
-  total_supply: number;
-  max_supply: number;
-  beta_value: number;
-  first_data_at: string;
-  last_updated: string;
-  quotes: {
-    USD: {
-      ath_date: string;
-      ath_price: number;
-      market_cap: number;
-      market_cap_change_24h: number;
-      percent_change_1h: number;
-      percent_change_1y: number;
-      percent_change_6h: number;
-      percent_change_7d: number;
-      percent_change_12h: number;
-      percent_change_15m: number;
-      percent_change_24h: number;
-      percent_change_30d: number;
-      percent_change_30m: number;
-      percent_from_price_ath: number;
-      price: number;
-      volume_24h: number;
-      volume_24h_change_24h: number;
-    };
-  };
-}
+  const handleInfiniteScroll = useCallback(async () => {
+    const { offsetHeight, scrollTop } = document.documentElement;
+    const innerHeight = window.innerHeight;
+    if (offsetHeight === innerHeight + scrollTop) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleInfiniteScroll);
+    return () => window.removeEventListener("scroll", handleInfiniteScroll);
+  }, [handleInfiniteScroll]);
+
+  useEffect(() => {
+    if (allTickersData) {
+      setAllData((prev) => {
+        const result = [...prev, ...allTickersData];
+        return result;
+      });
+    }
+  }, [allTickersData]);
+
+  useEffect(() => {
+    refetchAllTickers();
+  }, [page, refetchAllTickers]);
+
+  if (allCoinsLoading || allTickersLoading) {
+    return <Loading />;
+  }
+
+  return (
+    <Container>
+      <PageTitle text="💰 Crypto Tracker 💰" />
+      <Title>Crypto Tracker</Title>
+      <Content>
+        <MenuList>
+          <Menu>Rank</Menu>
+          <Menu>Volume / Change</Menu>
+          <Menu>Price / Change</Menu>
+        </MenuList>
+        {allData?.map((coin, index) => (
+          <Coin
+            key={`${coin.id}${index}`}
+            id={coin.id}
+            rank={coin.rank}
+            symbol={coin.symbol}
+            name={coin.name}
+            price={coin.quotes.USD.price}
+            priceChange={coin.quotes.USD.percent_change_24h}
+            volume={coin.quotes.USD.volume_24h}
+            volumeChange={coin.quotes.USD.volume_24h_change_24h}
+            image={`https://cryptocurrencyliveprices.com/img/${coin.id}.png`}
+          />
+        ))}
+      </Content>
+    </Container>
+  );
+};
+
+export default Home;
 
 const Container = styled.div`
   border-radius: 10px;
@@ -62,107 +86,34 @@ const Container = styled.div`
   color: ${(props) => props.theme.textColor};
 `;
 
-const Header = styled.header`
-  margin-bottom: 30px;
-`;
-
 const Title = styled.h1`
   text-transform: uppercase;
   text-align: center;
   font-size: 30px;
+  margin-bottom: 30px;
 `;
 
-const CoinUl = styled.ul`
+const Content = styled.div`
   padding: 20px;
 `;
 
-const CoinNav = styled.div`
+const MenuList = styled.div`
   display: flex;
+`;
 
-  span {
-    color: ${(props) => props.theme.grayColor};
-    text-transform: uppercase;
-    font-size: 14px;
-  }
-  span:nth-child(1) {
+const Menu = styled.span`
+  color: ${(props) => props.theme.grayColor};
+  text-transform: uppercase;
+  font-size: 14px;
+
+  &:nth-child(1) {
     flex: 1;
   }
-  span:nth-child(2) {
+  &:nth-child(2) {
     flex: 2.5;
   }
-  span:nth-child(3) {
+  &:nth-child(3) {
     flex: 1.5;
     text-align: right;
   }
 `;
-
-const Home = () => {
-  const [page, setPage] = useState<number>(1);
-  const [allData, setAllData] = useState<AllTickersInterface[]>([]);
-  const { isLoading: allCoinsLoading, data: allCoinsData } = useQuery<AllCoinsInterface[]>("allCoins", handleFetchAllCoins);
-  const { isLoading: allTickersLoading, data: allTickersData, refetch } = useQuery<AllTickersInterface[]>("allTickers", () => handleFetchAllTickers(page));
-
-  const handleInfiniteScroll = useCallback(async () => {
-    const offsetHeight: number = document.documentElement.offsetHeight;
-    const innerHeight: number = window.innerHeight;
-    const scrollTop: number = document.documentElement.scrollTop;
-
-    if (offsetHeight === innerHeight + scrollTop) {
-      setPage((page: number) => page + 1);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleInfiniteScroll);
-    return () => window.removeEventListener("scroll", handleInfiniteScroll);
-  }, [handleInfiniteScroll]);
-
-  useEffect(() => {
-    if (allTickersData) {
-      setAllData((allData: AllTickersInterface[]) => {
-        const result: AllTickersInterface[] = [...allData, ...allTickersData];
-        return result;
-      });
-    }
-  }, [allTickersData]);
-
-  useEffect(() => {
-    refetch();
-  }, [page, refetch]);
-
-  return (
-    <Container>
-      <HelmetTitle text={"💰 Crypto Tracker 💰"} />
-      <Header>
-        <Title>Crypto Tracker</Title>
-      </Header>
-      {(allCoinsLoading || allTickersLoading) === true ? (
-        <Loading />
-      ) : (
-        <CoinUl>
-          <CoinNav>
-            <span>Rank</span>
-            <span>Volume / Change</span>
-            <span>Price / Change</span>
-          </CoinNav>
-          {allData?.map((coin: AllTickersInterface, index: number) => (
-            <Coin
-              key={coin.id + index}
-              id={coin.id}
-              rank={coin.rank}
-              symbol={coin.symbol}
-              name={coin.name}
-              price={coin.quotes.USD.price}
-              priceChange={coin.quotes.USD.percent_change_24h}
-              volume={coin.quotes.USD.volume_24h}
-              volumeChange={coin.quotes.USD.volume_24h_change_24h}
-              image={`https://cryptocurrencyliveprices.com/img/${coin.id}.png`}
-            />
-          ))}
-        </CoinUl>
-      )}
-    </Container>
-  );
-};
-
-export default Home;
